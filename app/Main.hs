@@ -22,9 +22,16 @@ directory = "notebooks/"
 filepath :: String
 filepath = directory ++ unpack notebookName
 
-main :: IO ()
-main = runReq defaultHttpConfig $ do
+downloadNotebooks :: IO ()
+downloadNotebooks = runReq defaultHttpConfig $ do
   bs <- req GET url NoReqBody bsResponse mempty
-  -- liftIO $ B.putStrLn (responseBody bs)
   liftIO $ B.writeFile filepath (responseBody bs)
+
+addAndCommit :: IO ()
+addAndCommit = putStrLn "todo"
+
+main :: IO ()
+main = do
+    downloadNotebooks
+    addAndCommit
 
