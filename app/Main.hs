@@ -14,24 +14,21 @@ import Network.HTTP.Req
 import qualified Data.ByteString.Char8 as B
 import qualified Text.URI as URI
 
-import Secret (url, notebookName)
+import Secret (usernameUrl, notebookNames, makeSaveFilepath)
 
-directory :: String
-directory = "notebooks/"
-
-filepath :: String
-filepath = directory ++ unpack notebookName
-
-downloadNotebooks :: IO ()
-downloadNotebooks = runReq defaultHttpConfig $ do
-  bs <- req GET url NoReqBody bsResponse mempty
-  liftIO $ B.writeFile filepath (responseBody bs)
+downloadNotebook :: Text -> IO ()
+downloadNotebook name =
+    let notebookUrl = usernameUrl /: name
+        saveFilepath = makeSaveFilepath $ unpack name
+    in runReq defaultHttpConfig $ do
+        bs <- req GET notebookUrl NoReqBody bsResponse mempty
+        liftIO $ B.writeFile saveFilepath (responseBody bs)
 
 addAndCommit :: IO ()
 addAndCommit = putStrLn "todo"
 
 main :: IO ()
 main = do
-    downloadNotebooks
+    downloads <- sequence_ $ map downloadNotebook notebookNames
     addAndCommit
 
